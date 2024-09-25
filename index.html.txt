@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoticiasNewPro - Noticias Globales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos para los temas de colores */
+        body.classic { background-color: #f3f4f6; color: #1f2937; }
+        body.light { background-color: #ffffff; color: #000000; }
+        body.dark { background-color: #1f2937; color: #f3f4f6; }
+        body.vibrant { background-color: #fdf6e3; color: #073642; }
+        body.minimal { background-color: #f8f9fa; color: #212529; }
+    </style>
+</head>
+<body class="classic">
+    <header class="bg-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="/path/to/your/logo.png" alt="NoticiasNewPro Logo" class="h-10">
+            </div>
+            <div class="flex-grow mx-4">
+                <input id="search-bar" type="text" placeholder="Buscar noticias..." class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex items-center space-x-4">
+                <select id="country-selector" class="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="us">Estados Unidos</option>
+                    <option value="mx">México</option>
+                    <option value="es">España</option>
+                    <option value="ar">Argentina</option>
+                </select>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Iniciar sesión</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div id="error-container" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert"></div>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Noticias Destacadas</h2>
+            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <button id="load-more" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Cargar más noticias</button>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Categorías</h2>
+            <div class="flex flex-wrap gap-2">
+                <button class="category-button px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition" data-category="general">General</button>
+                <button class="category-button px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition" data-category="business">Negocios</button>
+                <button class="category-button px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition" data-category="technology">Tecnología</button>
+                <button class="category-button px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition" data-category="entertainment">Entretenimiento</button>
+                <button class="category-button px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition" data-category="sports">Deportes</button>
+                <button class="category-button px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition" data-category="science">Ciencia</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Enlaces Útiles</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-blue-300">Contacto</a></li>
+                        <li><a href="#" class="hover:text-blue-300">Términos y condiciones</a></li>
+                        <li><a href="#" class="hover:text-blue-300">Política de privacidad</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Síguenos</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-blue-300"><img src="/path/to/facebook.png" alt="Facebook" class="w-6 h-6"></a>
+                        <a href="#" class="hover:text-blue-300"><img src="/path/to/twitter.png" alt="Twitter" class="w-6 h-6"></a>
+                        <a href="#" class="hover:text-blue-300"><img src="/path/to/instagram.png" alt="Instagram" class="w-6 h-6"></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Personalizar Apariencia</h3>
+                    <select id="colorScheme" class="bg-gray-700 text-white px-4 py-2 rounded-md">
+                        <option value="classic">Clásico</option>
+                        <option value="light">Claro</option>
+                        <option value="dark">Oscuro</option>
+                        <option value="vibrant">Vibrante</option>
+                        <option value="minimal">Minimalista</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <p>&copy; 2024 NoticiasNewPro. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Definición de las API keys
+        const API_KEYS = [
+            '9be7c465bfb249c59f3e5470d2b76ff8',
+            '4d6a3d044b96c592317f2ac4c21e379f',
+            't62NOvXmZ8pqqIBd2c4vk-lTicVNXs0rTKcSMUtZ62rOS3aF'
+        ];
+
+        let currentApiKeyIndex = 0;
+        let currentPage = 1;
+        const articlesPerPage = 10;
+
+        // Función para obtener la siguiente API key
+        function getNextApiKey() {
+            const key = API_KEYS[currentApiKeyIndex];
+            currentApiKeyIndex = (currentApiKeyIndex + 1) % API_KEYS.length;
+            return key;
+        }
+
+        // Función para obtener noticias con múltiples intentos
+        async function fetchNewsWithFallback(country = 'us', category = '', page = 1, pageSize = 10) {
+            let attempts = API_KEYS.length;
+            while (attempts > 0) {
+                const apiKey = getNextApiKey();
+                const url = `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&page=${page}&pageSize=${pageSize}&apiKey=${apiKey}`;
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.status !== 'error') {
+                            return data.articles;
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching news with key ${apiKey}:`, error);
+                }
+                attempts--;
+            }
+            showErrorMessage('No se pudo obtener noticias, todas las claves API fallaron.');
+            return [];
+        }
+
+        // Función para mostrar mensajes de error
+        function showErrorMessage(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.textContent = message;
+            errorContainer.classList.remove('hidden');
+            setTimeout(() => {
+                errorContainer.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Función para renderizar noticias
+        function renderNews(articles) {
+            const newsContainer = document.getElementById('news-container');
+            if (currentPage === 1) {
+                newsContainer.innerHTML = ''; // Limpiar contenido al cargar la primera página
+            }
+
+            if (articles.length === 0) {
+                newsContainer.innerHTML = '<p class="text-center text-gray-500">No se encontraron noticias.</p>';
+                return;
+            }
+
+            articles.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'bg-white rounded-lg shadow-md p-4';
+                const defaultImage = 'https://example.com/default-image.jpg';
+                const imageUrl = article.urlToImage || defaultImage;
+                newsItem.innerHTML = `
+                    <img src="${imageUrl}" alt="${article.title ? article.title : 'Imagen de la noticia'}" class="w-full h-48 object-cover rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">${article.title}</h3>
+                    <p class="text-gray-600 mb-4">${article.description || 'No hay descripción disponible.'}</p>
+                    <div class="flex space-x-2">
+                        <button onclick="shareNews('facebook', '${article.url}')" class="p-2 bg-blue-500 text-white rounded-full">
+                            <img src="/path/to/facebook-icon.png" alt="Facebook" class="w-5 h-5">
+                        </button>
+                        <button onclick="shareNews('whatsapp', '${article.url}')" class="p-2 bg-green-500 text-white rounded-full">
+                            <img src="/path/to/whatsapp-icon.png" alt="WhatsApp" class="w-5 h-5">
+                        </button>
+                        <button onclick="shareNews('twitter', '${article.url}')" class="p-2 bg-blue-400 text-white rounded-full">
+                            <img src="/path/to/twitter-icon.png" alt="Twitter" class="w-5 h-5">
+                        </button>
+                        <button onclick="shareNews('telegram', '${article.url}')" class="p-2 bg-blue-600 text-white rounded-full">
+                            <img src="/path/to/telegram-icon.png" alt="Telegram" class="w-5 h-5">
+                        </button>
+                    </div>
+                `;
+                newsContainer.appendChild(newsItem);
+            });
+        }
+
+        // Función para compartir noticias
+        function shareNews(platform, url) {
+            let shareUrl;
+            switch (platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${encodeURIComponent(url)}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}`;
+                    break;
+            }
+            window.open(shareUrl, '_blank');
+        }
+
+        // Manejador de eventos para el selector de países
+        document.getElementById('country-selector').addEventListener('change', async (event) => {
+            const country = event.target.value;
+            currentPage = 1;
+            const articles = await fetchNewsWithFallback(country);
+            renderNews(articles);
+        });
+
+        // Manejador de eventos para los botones de categoría
+        document.querySelectorAll('.category-button').forEach(button => {
+            button.addEventListener('click', async () => {
+                const category = button.dataset.category;
+                const country = document.getElementById('country-selector').value;
+                currentPage = 1;
+                const articles = await fetchNewsWithFallback(country, category);
+                renderNews(articles);
+            });
+        });
+
+        // Manejador para cargar más noticias
+        document.getElementById('load-more').addEventListener('click', async () => {
+            const country = document.getElementById('country-selector').value;
+            const articles = await fetchNewsWithFallback(country, '', ++currentPage);
+            renderNews(articles);
+        });
+
+        // Función para cambiar el tema de colores
+        function changeColorScheme(scheme) {
+            document.body.className = scheme;
+            localStorage.setItem('colorScheme', scheme);
+        }
+
+        // Manejador de eventos para el selector de temas
+        document.getElementById('colorScheme').addEventListener('change', (event) => {
+            changeColorScheme(event.target.value);
+        });
+
+        // Validación en la barra de búsqueda
+        document.getElementById('search-bar').addEventListener('input', (event) => {
+            const searchTerm = event.target.value.trim();
+            if (searchTerm.length > 100) {
+                showErrorMessage('La búsqueda no puede superar los 100 caracteres.');
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Cargar noticias iniciales
+            const initialArticles = await fetchNewsWithFallback();
+            renderNews(initialArticles);
+
+            // Aplicar tema de color guardado
+            const savedScheme = localStorage.getItem('colorScheme');
+            if (savedScheme) {
+                changeColorScheme(savedScheme);
+                document.getElementById('colorScheme').value = savedScheme;
+            }
+        });
+    </script>
+</body>
+</html>
